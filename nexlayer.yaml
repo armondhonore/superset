@@ -1,0 +1,28 @@
+application:
+  name: superset
+  pods:
+  - name: app
+    image: apache/superset:latest
+    path: /
+    servicePorts:
+    - 8088
+    vars:
+      SUPERSET_SECRET_KEY: "a1b2c3d4e5f6a1b2c3d4e5f6"
+      DATABASE_URL: "postgresql+psycopg2://superset:superset@postgres.pod:5432/superset"
+      REDIS_URL: "redis://redis.pod:6379/0"
+  - name: postgres
+    image: postgres:16-alpine
+    servicePorts:
+    - 5432
+    vars:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+    volumes:
+    - name: superset-db
+      mountPath: /var/lib/postgresql/data
+      size: 10Gi
+  - name: redis
+    image: redis:7-alpine
+    servicePorts:
+    - 6379
