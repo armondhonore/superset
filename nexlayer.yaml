@@ -7,9 +7,11 @@ application:
     servicePorts:
     - 8088
     vars:
-      SUPERSET_SECRET_KEY: "a1b2c3d4e5f6a1b2c3d4e5f6"
-      DATABASE_URL: "postgresql+psycopg2://superset:superset@postgres.pod:5432/superset"
-      REDIS_URL: "redis://redis.pod:6379/0"
+      SUPERSET_SECRET_KEY: "ade2e54a7f088f2ad4da76eca71d710aef0a19ca72ca8dff53eddd0d88e7826d"
+      SUPERSET__SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://superset:${POSTGRES_PASSWORD}@superset-postgres-service.pod:5432/superset"
+      ADMIN_PASSWORD: "admin"
+      SERVER_WORKER_AMOUNT: "2"
+    command: 'sh -c "for i in $(seq 1 40); do superset db upgrade && break || sleep 5; done && (superset fab create-admin --username admin --email admin@superset.com --password \"$ADMIN_PASSWORD\" --firstname Superset --lastname Admin || true) && superset init && exec /usr/bin/run-server.sh"'
   - name: postgres
     image: mirror.gcr.io/library/postgres:16-alpine
     servicePorts:
@@ -17,7 +19,7 @@ application:
     vars:
       POSTGRES_DB: superset
       POSTGRES_USER: superset
-      POSTGRES_PASSWORD: superset
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
     - name: superset-db
       mountPath: /var/lib/postgresql/data
