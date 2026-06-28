@@ -8,7 +8,7 @@ application:
     - 8088
     vars:
       SUPERSET_SECRET_KEY: "ade2e54a7f088f2ad4da76eca71d710aef0a19ca72ca8dff53eddd0d88e7826d"
-      SUPERSET__SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://superset:${POSTGRES_PASSWORD}@superset-postgres-service.pod:5432/superset"
+      SUPERSET__SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://superset:${POSTGRES_PASSWORD}@postgres.pod:5432/superset"
       ADMIN_PASSWORD: "admin"
       SERVER_WORKER_AMOUNT: "2"
     command: 'sh -c "mkdir -p /app/superset_home/pylibs; export PYTHONPATH=/app/superset_home/pylibs:$PYTHONPATH; uv pip install --python /app/.venv/bin/python --target /app/superset_home/pylibs psycopg2-binary || true; for i in $(seq 1 40); do superset db upgrade && break || sleep 5; done && (superset fab create-admin --username admin --email admin@superset.com --password \"$ADMIN_PASSWORD\" --firstname Superset --lastname Admin || true) && superset init && exec /usr/bin/run-server.sh"'
